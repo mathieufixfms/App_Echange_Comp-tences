@@ -1,25 +1,90 @@
-{% extends "exchange/base.html" %} {% block title %} Accueil - Entraide {% endblock %} {% block content %}
-Prochains créneaux d'aide
-{% for availability in upcoming_availabilities %}
-{{ availability.skill.name }}
-Catégorie : {{ availability.skill.category.name }}
+{% extends "exchange/base.html" %}
 
-Date : {{ availability.date|date:"d/m/Y" }}
 
-{% empty %}
-Aucun créneau disponible pour le moment.
+{% block title %}
 
-{% endfor %}
-Compétences proposées
-{% for category in categories %}
-{{ category.name }}
-{% for skill in category.skills.all %}
-{{ skill.name }}
-{% empty %}
-Aucune compétence dans cette catégorie.
-{% endfor %}
-{% empty %}
-Aucune compétence disponible.
+    Accueil - Coup de main
 
-{% endfor %}
+{% endblock %}
+
+
+{% block content %}
+
+    <section>
+
+        <h2>Prochains créneaux d'aide</h2>
+
+        {% for availability in upcoming_availabilities %}
+
+            <article>
+
+                <h3>
+                    {{ availability.skill.name }}
+                </h3>
+
+                <p>
+                    Catégorie :
+                    {{ availability.skill.category.name }}
+                </p>
+
+                <p>
+                    Date :
+                    {{ availability.date|date:"d/m/Y" }}
+                </p>
+
+            </article>
+
+        {% empty %}
+
+            <p>
+                Aucun créneau disponible pour le moment.
+            </p>
+
+        {% endfor %}
+
+    </section>
+
+
+    <section>
+
+        <h2>Compétences proposées</h2>
+
+        {% for category in categories %}
+
+            <article>
+
+                <h3>
+                    {{ category.name }}
+                </h3>
+
+                <ul>
+
+                    {% for skill in category.skills.all %}
+
+                        <li>
+                            {{ skill.name }}
+                        </li>
+
+                    {% empty %}
+
+                        <li>
+                            Aucune compétence dans cette catégorie.
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+            </article>
+
+        {% empty %}
+
+            <p>
+                Aucune compétence disponible.
+            </p>
+
+        {% endfor %}
+
+    </section>
+
 {% endblock %}

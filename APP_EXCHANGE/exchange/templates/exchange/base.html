@@ -1,7 +1,77 @@
-Entraide
-Échange de compétences entre utilisateurs
+<!DOCTYPE html>
+<html lang="fr">
 
-Accueil {% if user.is_authenticated %} Bonjour {{ user.first_name|default:user.username }}
-{% csrf_token %} Se déconnecter
-{% else %} Se connecter {% endif %}
-{% block content %} {% endblock %}
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+            Coup de main
+        {% endblock %}
+    </title>
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Coup de main</h1>
+
+        <p>
+            Échange de compétences entre utilisateurs
+        </p>
+
+        <nav>
+
+            <a href="{% url 'exchange:index' %}">
+                Accueil
+            </a>
+
+            {% if user.is_authenticated %}
+
+                <span>
+                    Bonjour
+                    {{ user.first_name|default:user.username }}
+                </span>
+
+                <form
+                    method="post"
+                    action="{% url 'exchange:logout' %}"
+                >
+                    {% csrf_token %}
+
+                    <button type="submit">
+                        Se déconnecter
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'exchange:login' %}">
+                    Se connecter
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+</body>
+
+</html>
