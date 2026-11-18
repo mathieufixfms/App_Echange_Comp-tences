@@ -1,0 +1,13 @@
+{% extends "exchange/base.html" %} {% block title %} Connexion - Coup de main {% endblock %} {% block content %}
+Connexion
+Connectez-vous pour proposer ou demander de l'aide.
+
+{% if form.errors %}
+Nom d'utilisateur ou mot de passe incorrect.
+
+{% endif %}
+{% csrf_token %}
+Nom d'utilisateur {{ form.username }}
+Mot de passe {{ form.password }}
+Se connecter
+{% endblock %}

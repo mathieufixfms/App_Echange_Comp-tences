@@ -1,6 +1,4 @@
-Entraide
-Échange de compétences entre utilisateurs
-
+{% extends "exchange/base.html" %} {% block title %} Accueil - Entraide {% endblock %} {% block content %}
 Prochains créneaux d'aide
 {% for availability in upcoming_availabilities %}
 {{ availability.skill.name }}
@@ -9,7 +7,7 @@ Catégorie : {{ availability.skill.category.name }}
 Date : {{ availability.date|date:"d/m/Y" }}
 
 {% empty %}
-Aucun créneau d'aide n'est disponible pour le moment.
+Aucun créneau disponible pour le moment.
 
 {% endfor %}
 Compétences proposées
@@ -24,3 +22,4 @@ Aucune compétence dans cette catégorie.
 Aucune compétence disponible.
 
 {% endfor %}
+{% endblock %}

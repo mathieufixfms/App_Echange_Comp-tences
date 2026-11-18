@@ -1,0 +1,7 @@
+Entraide
+Échange de compétences entre utilisateurs
+
+Accueil {% if user.is_authenticated %} Bonjour {{ user.first_name|default:user.username }}
+{% csrf_token %} Se déconnecter
+{% else %} Se connecter {% endif %}
+{% block content %} {% endblock %}
