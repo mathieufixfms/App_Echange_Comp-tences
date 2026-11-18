@@ -1,0 +1,26 @@
+Entraide
+Échange de compétences entre utilisateurs
+
+Prochains créneaux d'aide
+{% for availability in upcoming_availabilities %}
+{{ availability.skill.name }}
+Catégorie : {{ availability.skill.category.name }}
+
+Date : {{ availability.date|date:"d/m/Y" }}
+
+{% empty %}
+Aucun créneau d'aide n'est disponible pour le moment.
+
+{% endfor %}
+Compétences proposées
+{% for category in categories %}
+{{ category.name }}
+{% for skill in category.skills.all %}
+{{ skill.name }}
+{% empty %}
+Aucune compétence dans cette catégorie.
+{% endfor %}
+{% empty %}
+Aucune compétence disponible.
+
+{% endfor %}
