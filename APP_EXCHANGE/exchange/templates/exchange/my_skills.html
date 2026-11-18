@@ -1,0 +1,47 @@
+{% extends "exchange/base.html" %}
+
+
+{% block title %}
+
+    Mes compétences - Coup de main
+
+{% endblock %}
+
+
+{% block content %}
+
+    <section>
+
+        <h2>Mes compétences</h2>
+
+        <p>
+            Sélectionnez les compétences que vous possédez
+            et que vous êtes prêt à proposer aux autres utilisateurs.
+        </p>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+
+            <div>
+
+                {{ form.skills.errors }}
+
+                {{ form.skills }}
+
+            </div>
+
+
+            <button type="submit">
+                Enregistrer mes compétences
+            </button>
+
+        </form>
+
+    </section>
+
+{% endblock %}

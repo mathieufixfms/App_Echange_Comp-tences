@@ -11,7 +11,7 @@
 
     <title>
         {% block title %}
-            Coup de main
+            Entraide
         {% endblock %}
     </title>
 </head>
@@ -20,7 +20,7 @@
 
     <header>
 
-        <h1>Coup de main</h1>
+        <h1>Entraide</h1>
 
         <p>
             Échange de compétences entre utilisateurs
@@ -28,9 +28,8 @@
 
         <nav>
 
-            <a href="{% url 'exchange:index' %}">
-                Accueil
-            </a>
+            <a href="{% url 'exchange:index' %}">Accueil</a>
+
 
             {% if user.is_authenticated %}
 
@@ -38,7 +37,7 @@
                     Bonjour
                     {{ user.first_name|default:user.username }}
                 </span>
-
+                <a href="{% url 'exchange:my_skills' %}">Mes compétences</a>
                 <form
                     method="post"
                     action="{% url 'exchange:logout' %}"
