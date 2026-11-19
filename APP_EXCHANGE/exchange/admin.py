@@ -9,8 +9,13 @@ from .models import (
 )
 
 
+# =========================================================
+# Categories
+# =========================================================
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "name",
@@ -25,12 +30,18 @@ class CategoryAdmin(admin.ModelAdmin):
     )
 
 
+# =========================================================
+# Skills
+# =========================================================
+
 @admin.register(Skill)
 class SkillAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "name",
         "category",
+        "description",
     )
 
     list_filter = (
@@ -49,18 +60,25 @@ class SkillAdmin(admin.ModelAdmin):
     )
 
 
+# =========================================================
+# User Skills
+# =========================================================
+
 @admin.register(UserSkill)
 class UserSkillAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "user",
         "skill",
+        "get_category",
         "created_at",
     )
 
     list_filter = (
         "skill__category",
         "skill",
+        "user",
     )
 
     search_fields = (
@@ -69,6 +87,7 @@ class UserSkillAdmin(admin.ModelAdmin):
         "user__last_name",
         "user__email",
         "skill__name",
+        "skill__category__name",
     )
 
     ordering = (
@@ -76,19 +95,29 @@ class UserSkillAdmin(admin.ModelAdmin):
         "skill__name",
     )
 
-    readonly_fields = (
-        "created_at",
+    @admin.display(
+        description="Catégorie",
+        ordering="skill__category__name",
     )
+    def get_category(self, obj):
+        return obj.skill.category
 
+
+# =========================================================
+# Availabilities
+# =========================================================
 
 @admin.register(Availability)
 class AvailabilityAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "user",
         "skill",
+        "get_category",
         "date",
         "is_booked",
+        "created_at",
     )
 
     list_filter = (
@@ -96,6 +125,7 @@ class AvailabilityAdmin(admin.ModelAdmin):
         "date",
         "skill__category",
         "skill",
+        "user",
     )
 
     search_fields = (
@@ -104,32 +134,48 @@ class AvailabilityAdmin(admin.ModelAdmin):
         "user__last_name",
         "user__email",
         "skill__name",
+        "skill__category__name",
     )
 
     ordering = (
         "date",
     )
 
-    readonly_fields = (
-        "created_at",
+    @admin.display(
+        description="Catégorie",
+        ordering="skill__category__name",
     )
+    def get_category(self, obj):
+        return obj.skill.category
 
+
+# =========================================================
+# Help Requests
+# =========================================================
 
 @admin.register(HelpRequest)
 class HelpRequestAdmin(admin.ModelAdmin):
+
     list_display = (
         "id",
         "requester",
         "skill",
+        "get_category",
+        "activity",
         "date",
         "helper",
-        "is_assigned",
+        "availability",
+        "is_assigned_display",
+        "created_at",
+        "updated_at",
     )
 
     list_filter = (
         "date",
         "skill__category",
         "skill",
+        "requester",
+        "helper",
     )
 
     search_fields = (
@@ -142,6 +188,7 @@ class HelpRequestAdmin(admin.ModelAdmin):
         "helper__last_name",
         "helper__email",
         "skill__name",
+        "skill__category__name",
         "activity",
     )
 
@@ -149,14 +196,16 @@ class HelpRequestAdmin(admin.ModelAdmin):
         "date",
     )
 
-    readonly_fields = (
-        "created_at",
-        "updated_at",
+    @admin.display(
+        description="Catégorie",
+        ordering="skill__category__name",
     )
+    def get_category(self, obj):
+        return obj.skill.category
 
     @admin.display(
         boolean=True,
         description="Attribuée",
     )
-    def is_assigned(self, obj):
+    def is_assigned_display(self, obj):
         return obj.helper is not None

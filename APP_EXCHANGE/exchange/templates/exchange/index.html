@@ -8,63 +8,45 @@
 
 {% block content %}
 
-<!-- Présentation -->
+<section class="p-5 bg-primary text-white rounded-3 shadow-sm">
 
-<div class="p-5 mb-5 bg-primary text-white rounded-3">
-
-    <div class="container-fluid py-3">
-
+    <div class="py-1">
         <h1 class="display-5 fw-bold">
             Échangez vos compétences
         </h1>
-
-        <p class="fs-5">
+        <p class="fs-5 mb-2">
             Proposez votre aide ou trouvez une personne
             possédant la compétence dont vous avez besoin.
         </p>
-
-
-        {% if not user.is_authenticated %}
-
-            <a
-                href="{% url 'exchange:login' %}"
-                class="btn btn-light btn-lg"
-            >
-                Se connecter
-            </a>
-
-        {% endif %}
-
     </div>
 
-</div>
+</section>
 
-<!-- Compétences proposées -->
+<!-- ========================================== -->
+<!-- CATEGORIES PROPOSÉES -->
+<!-- ========================================== -->
 
-<section class="mb-5">
+<section class="mb-2 p-2">
 
     <h2 class="mb-4">
-        Compétences proposées
+        Catégories proposées
     </h2>
 
     <div class="row">
 
         {% for category in categories %}
 
-            <!-- 2 colonnes à partir des écrans moyens -->
             <div class="col-12 col-md-6 mb-3">
 
                 <div class="accordion">
 
-                    <div class="accordion-item">
+                    <div class="accordion-item shadow-sm">
 
-                        <h3
-                            class="accordion-header"
-                            id="heading{{ category.id }}"
-                        >
+                        <!-- Catégorie -->
 
-                            <button
-                                class="accordion-button collapsed bg-primary text-white"
+                        <h3 class="accordion-header" id="heading{{ category.id }}">
+
+                            <button class="accordion-button collapsed bg-primary text-white"
                                 type="button"
                                 data-bs-toggle="collapse"
                                 data-bs-target="#category{{ category.id }}"
@@ -72,12 +54,18 @@
                                 aria-controls="category{{ category.id }}"
                             >
 
-                                {{ category.name }}
+                                <strong>
+
+                                    {{ category.name }}
+
+                                </strong>
 
                             </button>
 
                         </h3>
 
+
+                        <!-- Compétences -->
 
                         <div
                             id="category{{ category.id }}"
@@ -99,11 +87,11 @@
 
                                     {% empty %}
 
-                                        <li
-                                            class="list-group-item text-muted"
-                                        >
-                                            Aucune compétence dans
-                                            cette catégorie.
+                                        <li class="list-group-item text-muted">
+
+                                            Aucune compétence
+                                            dans cette catégorie.
+
                                         </li>
 
                                     {% endfor %}
@@ -119,6 +107,7 @@
                 </div>
 
             </div>
+
 
         {% empty %}
 
@@ -138,151 +127,341 @@
 
 </section>
 
-
-<!-- Disponibilités publiques -->
+<!-- ========================================== -->
+<!-- AIDES PROPOSÉES -->
+<!-- ========================================== -->
 
 <section class="mb-5">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div
+        class="d-flex flex-column flex-md-row
+               justify-content-between
+               align-items-md-center
+               gap-2 mb-2"
+    >
 
-        <h2>
-            Prochains créneaux d'aide
-        </h2>
+        <div>
 
-        <span class="badge bg-success">
-            Disponibilités
-        </span>
+            <h1 class="h2 mb-1 p-2">
+                Aides proposées
+            </h1>
+
+            <p class="text-muted mb-0">
+                Prochains créneaux où des utilisateurs proposent leur aide.
+            </p>
+
+        </div>
+
+
+        {% if page_obj.paginator.count > 0 %}
+
+            <span class="badge bg-primary fs-6">
+
+                {{ page_obj.paginator.count }}
+                disponibilité{{ page_obj.paginator.count|pluralize }}
+
+            </span>
+
+        {% endif %}
 
     </div>
 
+
+    <!-- ========================================== -->
+    <!-- CARTES -->
+    <!-- ========================================== -->
 
     <div class="row">
 
- {% for availability in upcoming_availabilities %}
+        {% for availability in page_obj %}
 
-    <div class="col-md-6 col-lg-4 mb-3">
+            <div class="col-md-6 col-lg-4 mb-4">
 
-        <div class="card h-100 shadow-sm">
+                <article class="card h-100 shadow-sm">
 
-            <div class="card-body">
+                    <!-- En-tête -->
 
-                <h5 class="card-title text-primary">
-                    {{ availability.skill.name }}
-                </h5>
+                    <div class="card-header bg-primary text-white">
 
-                <p class="card-text">
-                    <strong>Catégorie :</strong>
-                    {{ availability.skill.category.name }}
-                </p>
+                        <strong>
+                            Aide proposée
+                        </strong>
 
-                <p class="card-text">
-                    <strong>Date :</strong>
-                    {{ availability.date|date:"d/m/Y" }}
-                </p>
-
-                <span class="badge bg-success mb-3">
-                    Aide proposée
-                </span>
+                    </div>
 
 
-                {% if user.is_authenticated %}
+                    <!-- Contenu -->
 
-                    <hr>
+                    <div class="card-body">
+                        <h5 class="mb-2">
 
-                    <h6 class="fw-bold">
-                        Utilisateur proposant son aide
-                    </h6>
+                            <strong>
+                                Catégorie :
+                            </strong>
+                             <span class="text-primary">
+                            {{ availability.skill.category.name }}
+                             </span>
+                        </h5>
+                        <p class="h6 ">
+                             <strong>
+                                Compétences :
+                            </strong>
 
-                    <p class="mb-1">
-                        <strong>Prénom :</strong>
+                            {{ availability.skill.name }}
+                        </p>
 
-                        {% if availability.user.first_name %}
+                        <p class="mb-2">
 
-                            {{ availability.user.first_name }}
+                            <strong>
+                                Date :
+                            </strong>
+
+                            {{ availability.date|date:"d/m/Y" }}
+
+                        </p>
+
+
+                        <!-- Identité visible uniquement
+                             pour les utilisateurs connectés -->
+
+                        {% if user.is_authenticated %}
+
+                            <hr>
+
+
+                            <h3 class="h6 fw-bold">
+
+                                Utilisateur proposant son aide
+
+                            </h3>
+
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Prénom :
+                                </strong>
+
+                                {% if availability.user.first_name %}
+
+                                    {{ availability.user.first_name }}
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Nom :
+                                </strong>
+
+                                {% if availability.user.last_name %}
+
+                                    {{ availability.user.last_name }}
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+
+                            <p class="mb-0">
+
+                                <strong>
+                                    Courriel :
+                                </strong>
+
+                                {% if availability.user.email %}
+
+                                    <a
+                                        href="mailto:{{ availability.user.email }}"
+                                    >
+
+                                        {{ availability.user.email }}
+
+                                    </a>
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Pied de carte -->
+
+                    <div class="card-footer bg-white text-muted">
+
+                        {% if user.is_authenticated %}
+
+                            <small>
+                                Coordonnées visibles car vous êtes connecté.
+                            </small>
 
                         {% else %}
 
-                            Non renseigné
+                            <small>
+                                Identité de l'utilisateur masquée.
+                            </small>
 
                         {% endif %}
-                    </p>
+
+                    </div>
+
+                </article>
+
+            </div>
 
 
-                    <p class="mb-1">
-                        <strong>Nom :</strong>
+        {% empty %}
 
-                        {% if availability.user.last_name %}
+            <div class="col-12">
 
-                            {{ availability.user.last_name }}
+                <div class="alert alert-info">
 
-                        {% else %}
+                    Aucune aide proposée n'est disponible
+                    pour le moment.
 
-                            Non renseigné
+                </div>
 
-                        {% endif %}
-                    </p>
+            </div>
+
+        {% endfor %}
+
+    </div>
 
 
-                    <p class="mb-0">
-                        <strong>Courriel :</strong>
+    <!-- ========================================== -->
+    <!-- PAGINATION -->
+    <!-- ========================================== -->
 
-                        {% if availability.user.email %}
+    {% if page_obj.paginator.num_pages > 1 %}
 
-                            <a href="mailto:{{ availability.user.email }}">
-                                {{ availability.user.email }}
+        <div class="mt-3">
+
+            <p class="text-center text-muted">
+
+                Page
+
+                <strong>
+                    {{ page_obj.number }}
+                </strong>
+
+                sur
+
+                <strong>
+                    {{ page_obj.paginator.num_pages }}
+                </strong>
+
+            </p>
+
+
+            <nav aria-label="Pagination des aides proposées">
+
+                <ul class="pagination justify-content-center flex-wrap">
+
+                    <!-- Page précédente -->
+
+                    {% if page_obj.has_previous %}
+
+                        <li class="page-item">
+
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                                Précédent
                             </a>
 
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+                                Précédent
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+                    <!-- Numéros de pages -->
+
+                    {% for page_number in page_obj.paginator.page_range %}
+
+                        {% if page_number == page_obj.number %}
+
+                            <li class="page-item active" aria-current="page">
+
+                                <span class="page-link">
+
+                                    {{ page_number }}
+
+                                </span>
+
+                            </li>
+
                         {% else %}
 
-                            Non renseigné
+                            <li class="page-item">
+
+                                <a class="page-link" href="?page={{ page_number }}">
+
+                                    {{ page_number }}
+
+                                </a>
+
+                            </li>
 
                         {% endif %}
-                    </p>
 
-                {% endif %}
+                    {% endfor %}
 
-            </div>
+                    <!-- Page suivante -->
 
+                    {% if page_obj.has_next %}
 
-            <div class="card-footer bg-white text-muted">
+                        <li class="page-item">
 
-                {% if user.is_authenticated %}
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                                Suivant
+                            </a>
 
-                    <small>
-                         Coordonnées affichées
-                    </small>
+                        </li>
 
-                {% else %}
+                    {% else %}
 
-                    <small>
-                        Identité de l'utilisateur masquée.
-                    </small>
+                        <li class="page-item disabled">
 
-                {% endif %}
+                            <span class="page-link">
+                                Suivant
+                            </span>
 
-            </div>
+                        </li>
 
-        </div>
+                    {% endif %}
 
-    </div>
+                </ul>
 
-
-{% empty %}
-
-    <div class="col-12">
-
-        <div class="alert alert-info">
-
-            Aucun créneau d'aide n'est disponible
-            pour le moment.
+            </nav>
 
         </div>
 
-    </div>
-
-{% endfor %}
-
-    </div>
+    {% endif %}
 
 </section>
 
