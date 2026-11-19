@@ -1,0 +1,351 @@
+{% extends "exchange/base.html" %}
+
+
+{% block title %}
+Mes demandes d'aide - Entraide
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+
+    <!-- COLONNE GAUCHE -->
+
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+
+                <h2 class="h4 mb-0">
+                    Rechercher de l'aide
+                </h2>
+
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Sélectionnez d'abord une catégorie.
+                </p>
+                <form
+                        method="get"
+                        id="category-form"
+                >
+
+                    <div class="mb-3">
+
+                        <label
+                                for="help-category"
+                                class="form-label"
+                        >
+                            Catégorie
+                        </label>
+
+                        <select
+                                id="help-category"
+                                name="category"
+                                class="form-select"
+                                required
+                                onchange="this.form.submit();"
+                        >
+
+                            <option value="">
+                                Choisir une catégorie
+                            </option>
+
+                            {% for category in categories %}
+
+                            <option value="{{ category.id }}"
+
+                                    {% if selected_category %}
+                                    {% if selected_category.id == category.id %}
+                                    selected
+                                    {% endif %}
+                                    {% endif %}
+                            >
+
+                                {{ category.name }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </form>
+
+
+            </div>
+
+        </div>
+
+
+        {% if selected_category and form %}
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-primary text-white">
+
+                <h3 class="h5 mb-0">
+                    {{ selected_category.name }}
+                </h3>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    <input
+                            type="hidden"
+                            name="category"
+                            value="{{ selected_category.id }}"
+                    >
+
+
+                    {% if form.non_field_errors %}
+
+                    <div class="alert alert-danger">
+
+                        {% for error in form.non_field_errors %}
+
+                        {{ error }}
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <!-- COMPÉTENCE -->
+
+                    <div class="mb-3">
+
+                        {{ form.skill.label_tag }}
+
+                        <div class="mt-1">
+                            {{ form.skill }}
+                        </div>
+
+
+                        {% for error in form.skill.errors %}
+
+                        <div class="text-danger mt-1">
+                            {{ error }}
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- DATE -->
+
+                    <div class="mb-3">
+
+                        {{ form.date.label_tag }}
+
+                        <div class="mt-1">
+                            {{ form.date }}
+                        </div>
+
+
+                        {% for error in form.date.errors %}
+
+                        <div class="text-danger mt-1">
+                            {{ error }}
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <!-- ACTIVITÉ -->
+
+                    <div class="mb-4">
+
+                        {{ form.activity.label_tag }}
+
+                        <div class="mt-1">
+                            {{ form.activity }}
+                        </div>
+
+
+                        {% for error in form.activity.errors %}
+
+                        <div class="text-danger mt-1">
+                            {{ error }}
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="d-grid">
+
+                        <button
+                                type="submit"
+                                class="btn btn-primary text-white"
+                        >
+                            Publier ma demande
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="alert alert-info">
+
+            Sélectionnez une catégorie
+            pour afficher les compétences.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- COLONNE DROITE -->
+
+    <div class="col-lg-7">
+
+        <h2 class="mb-4">
+            Mes prochaines demandes
+        </h2>
+
+
+        {% for help_request in help_requests %}
+
+        <div class="card mb-3 shadow-sm">
+
+            <div class="card-body">
+
+                <div
+                        class="d-flex
+                               justify-content-between
+                               align-items-start"
+                >
+
+                    <div>
+
+                        <h3 class="h5 text-primary">
+
+                            {{ help_request.skill.name }}
+
+                        </h3>
+
+                        <span class="badge bg-secondary">
+
+                                {{ help_request.skill.category.name }}
+
+                            </span>
+
+                    </div>
+
+
+                    {% if help_request.helper %}
+
+                    <span class="badge bg-success">
+
+                                Aidant trouvé
+
+                            </span>
+
+                    {% else %}
+
+                    <span class="badge bg-warning text-dark">
+
+                                En attente
+
+                            </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <hr>
+
+
+                <p>
+
+                    <strong>Activité :</strong>
+
+                    {{ help_request.activity }}
+
+                </p>
+
+
+                <p class="mb-0">
+
+                    <strong>Date :</strong>
+
+                    {{ help_request.date|date:"d/m/Y" }}
+
+                </p>
+
+
+                {% if help_request.helper %}
+
+                <div class="alert alert-success mt-3 mb-0">
+
+                    <strong>Aidant :</strong>
+
+                    {{ help_request.helper.first_name }}
+                    {{ help_request.helper.last_name }}
+
+                    <br>
+
+
+                    <strong>Courriel :</strong>
+
+                    <a
+                            href="mailto:{{ help_request.helper.email }}"
+                    >
+
+                        {{ help_request.helper.email }}
+
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        {% empty %}
+
+        <div class="alert alert-info">
+
+            Vous n'avez aucune demande d'aide à venir.
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+{% endblock %}

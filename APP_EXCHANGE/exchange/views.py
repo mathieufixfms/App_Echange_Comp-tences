@@ -3,8 +3,8 @@ from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.urls import reverse
 
-from .forms import AvailabilityForm, UserSkillsForm
-from .models import Availability, Category, UserSkill
+from .forms import AvailabilityForm, UserSkillsForm, HelpRequestForm
+from .models import Availability, Category, UserSkill, HelpRequest
 
 
 def index(request):
@@ -220,5 +220,107 @@ def my_availabilities(request):
     return render(
         request,
         "exchange/my_availabilities.html",
+        context,
+    )
+
+@login_required
+def my_help_requests(request):
+
+    categories = (
+        Category.objects
+        .all()
+        .order_by("name")
+    )
+
+    if request.method == "POST":
+
+        category_id = request.POST.get("category")
+
+    else:
+
+        category_id = request.GET.get("category")
+
+
+    selected_category = None
+
+    if category_id:
+
+        selected_category = (
+            Category.objects
+            .filter(id=category_id)
+            .first()
+        )
+
+
+    if request.method == "POST":
+
+        form = HelpRequestForm(
+            request.POST,
+            user=request.user,
+            category=selected_category,
+        )
+
+        if form.is_valid():
+
+            help_request = form.save(
+                commit=False
+            )
+
+            help_request.requester = request.user
+
+            help_request.save()
+
+            redirect_url = reverse(
+                "exchange:my_help_requests"
+            )
+
+            return redirect(
+                f"{redirect_url}"
+                f"?category={selected_category.id}"
+            )
+
+
+    elif selected_category:
+
+        form = HelpRequestForm(
+            user=request.user,
+            category=selected_category,
+        )
+
+
+    else:
+
+        form = None
+
+
+    help_requests = (
+        HelpRequest.objects
+        .filter(
+            requester=request.user,
+            date__gte=timezone.localdate(),
+        )
+        .select_related(
+            "skill",
+            "skill__category",
+            "helper",
+        )
+        .order_by(
+            "date",
+            "skill__name",
+        )
+    )
+
+
+    context = {
+        "categories": categories,
+        "selected_category": selected_category,
+        "form": form,
+        "help_requests": help_requests,
+    }
+
+
+    return render(
+        request,
+        "exchange/my_help_requests.html",
         context,
     )

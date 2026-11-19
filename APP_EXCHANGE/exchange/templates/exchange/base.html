@@ -11,7 +11,7 @@
 
     <title>
         {% block title %}
-            Coup de main
+            Entraide
         {% endblock %}
     </title>
 
@@ -57,44 +57,32 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                     <li class="nav-item">
-
-                        <a
-                            class="nav-link"
-                            href="{% url 'exchange:index' %}"
-                        >
-                            Accueil
+                        <a class="nav-link" href="{% url 'exchange:index' %}">
+                           Accueil
                         </a>
-
                     </li>
-
 
                     {% if user.is_authenticated %}
 
                         <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'exchange:my_skills' %}"
-                            >
+                            <a class="nav-link"
+                                href="{% url 'exchange:my_skills' %}">
                                 Mes compétences
                             </a>
-
                         </li>
-
 
                         <li class="nav-item">
-
-                            <a
-                                class="nav-link"
-                                href="{% url 'exchange:my_availabilities' %}"
-                            >
-                                Mes disponibilités
+                            <a class="nav-link" href="{% url 'exchange:my_availabilities' %}">
+                               Mes disponibilités
                             </a>
-
                         </li>
 
+                        <li class="nav-item">
+                             <a class="nav-link" href="{% url 'exchange:my_help_requests' %}">
+                                Mes demandes d'aide
+                             </a>
+                        </li>
                     {% endif %}
-
                 </ul>
 
 

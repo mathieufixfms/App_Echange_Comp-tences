@@ -15,4 +15,6 @@ urlpatterns = [
 	path("my-skills/",views.my_skills,name="my_skills",),
 	
 	path( "my-availabilities",views.my_availabilities,name="my_availabilities",),
+	
+	path("my-help-requests/",views.my_help_requests,name="my_help_requests",),
 ]

@@ -1,11 +1,11 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Category, Availability, Skill
+from .models import Category, Availability, Skill, HelpRequest
 
 
 class UserSkillsForm(forms.Form):
-	
+    
     category = forms.ModelChoiceField(
         queryset=Category.objects.all().order_by("name"),
         required=True,
@@ -147,3 +147,121 @@ class AvailabilityForm(forms.ModelForm):
                 )
 
         return cleaned_data
+    
+class HelpRequestForm(forms.ModelForm):
+
+    class Meta:
+        model = HelpRequest
+
+        fields = [
+            "date",
+            "skill",
+            "activity",
+        ]
+
+        widgets = {
+            "date": forms.DateInput(
+                attrs={
+                    "type": "date",
+                    "class": "form-control",
+                }
+            ),
+
+            "skill": forms.Select(
+                attrs={
+                    "class": "form-select",
+                }
+            ),
+
+            "activity": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Dites se dont vous avez besoin",
+                }
+            ),
+        }
+
+        labels = {
+            "date": "Journée souhaitée",
+            "skill": "Compétence recherchée",
+            "activity": "Activité à réaliser",
+        }
+
+    def __init__(
+        self,
+        *args,
+        user=None,
+        category=None,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+
+        self.user = user
+        self.category = category
+
+        if user is not None and category is not None:
+
+            self.fields["skill"].queryset = (
+                Skill.objects
+                .filter(category=category)
+                .exclude(user_skills__user=user)
+                .order_by("name")
+                .distinct()
+            )
+
+        else:
+
+            self.fields["skill"].queryset = (
+                Skill.objects.none()
+            )
+
+    def clean_date(self):
+
+        date = self.cleaned_data["date"]
+
+        if date < timezone.localdate():
+
+            raise forms.ValidationError(
+                "Vous ne pouvez pas sélectionner "
+                "une date passée."
+            )
+
+        return date
+
+    def clean_skill(self):
+
+        skill = self.cleaned_data["skill"]
+
+        if self.user is None:
+
+            raise forms.ValidationError(
+                "Utilisateur non identifié."
+            )
+
+        if self.category is None:
+
+            raise forms.ValidationError(
+                "Vous devez sélectionner une catégorie."
+            )
+
+        if skill.category_id != self.category.id:
+
+            raise forms.ValidationError(
+                "Cette compétence ne correspond pas "
+                "à la catégorie sélectionnée."
+            )
+
+        owns_skill = (
+            self.user.user_skills
+            .filter(skill=skill)
+            .exists()
+        )
+
+        if owns_skill:
+
+            raise forms.ValidationError(
+                "Vous possédez déjà cette compétence."
+            )
+
+        return skill
