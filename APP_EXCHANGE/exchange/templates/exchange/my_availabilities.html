@@ -1,0 +1,246 @@
+{% extends "exchange/base.html" %}
+
+
+{% block title %}
+    Mes disponibilités - Coup de main
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="row">
+
+    <!-- Formulaire -->
+
+    <div class="col-lg-5 mb-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-primary text-white">
+
+                <h2 class="h4 mb-0">
+
+                    Ajouter une disponibilité
+
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <p class="text-muted">
+
+                    Indiquez une journée où vous êtes disponible
+                    pour aider un autre utilisateur avec une
+                    compétence que vous possédez.
+
+                </p>
+
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    <!-- Erreurs générales -->
+
+                    {% if form.non_field_errors %}
+
+                        <div class="alert alert-danger">
+
+                            {% for error in form.non_field_errors %}
+
+                                <p class="mb-0">
+
+                                    {{ error }}
+
+                                </p>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Date -->
+
+                    <div class="mb-3">
+
+                        {{ form.date.label_tag }}
+
+                        <div class="mt-1">
+
+                            {{ form.date }}
+
+                        </div>
+
+
+                        {% if form.date.errors %}
+
+                            {% for error in form.date.errors %}
+
+                                <div class="text-danger mt-1">
+
+                                    {{ error }}
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Compétence -->
+
+                    <div class="mb-4">
+
+                        {{ form.skill.label_tag }}
+
+                        <div class="mt-1">
+
+                            {{ form.skill }}
+
+                        </div>
+
+
+                        {% if form.skill.errors %}
+
+                            {% for error in form.skill.errors %}
+
+                                <div class="text-danger mt-1">
+
+                                    {{ error }}
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="d-grid">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+
+                            Ajouter la disponibilité
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Liste des disponibilités -->
+
+    <div class="col-lg-7">
+
+        <h2 class="mb-4">
+
+            Mes prochaines disponibilités
+
+        </h2>
+
+
+        {% for availability in availabilities %}
+
+            <div class="card mb-3 shadow-sm">
+
+                <div class="card-body">
+
+                    <div
+                        class="d-flex
+                               justify-content-between
+                               align-items-start"
+                    >
+
+                        <div>
+
+                            <h5 class="card-title text-primary">
+
+                                {{ availability.skill.name }}
+
+                            </h5>
+
+
+                            <p class="card-text mb-2">
+
+                                <strong>Catégorie :</strong>
+
+                                {{ availability.skill.category.name }}
+
+                            </p>
+
+
+                            <p class="card-text mb-2">
+
+                                <strong>Date :</strong>
+
+                                {{ availability.date|date:"d/m/Y" }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div>
+
+                            {% if availability.is_booked %}
+
+                                <span class="badge bg-danger">
+
+                                    Réservé
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-success">
+
+                                    Disponible
+
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        {% empty %}
+
+            <div class="alert alert-info">
+
+                Vous n'avez aucune disponibilité à venir.
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+
+{% endblock %}

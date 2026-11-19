@@ -1,14 +1,26 @@
-from django.shortcuts import render
-from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from .models import Availability, Category
-from .forms import UserSkillsForm
-from .models import UserSkill
+from django.utils import timezone
+from django.urls import reverse
+
+from .forms import AvailabilityForm, UserSkillsForm
+from .models import Availability, Category, UserSkill
 
 
 def index(request):
-    categories = Category.objects.prefetch_related("skills").all()
+    """
+    Public index page.
+
+    Displays:
+    - available skill categories
+    - upcoming anonymous availabilities
+    """
+
+    categories = (
+        Category.objects
+        .prefetch_related("skills")
+        .all()
+    )
 
     upcoming_availabilities = (
         Availability.objects
@@ -16,7 +28,11 @@ def index(request):
             date__gte=timezone.localdate(),
             is_booked=False,
         )
-        .select_related("skill", "skill__category")
+        .select_related(
+			"user",
+            "skill",
+            "skill__category",
+        )
         .order_by("date")[:10]
     )
 
@@ -34,25 +50,59 @@ def index(request):
 @login_required
 def my_skills(request):
 
-    current_user_skills = UserSkill.objects.filter(
-        user=request.user
+    # Retrieve only categories in which the connected user
+    # already owns at least one skill.
+    categories = (
+        Category.objects
+        .filter(
+            skills__user_skills__user=request.user
+        )
+        .distinct()
+        .order_by("name")
     )
 
-    selected_skills = [
-        user_skill.skill
-        for user_skill in current_user_skills
-    ]
+    category_id = (
+        request.POST.get("category")
+        if request.method == "POST"
+        else request.GET.get("category")
+    )
+
+    selected_category = None
+
+    if category_id:
+        selected_category = (
+            categories
+            .filter(id=category_id)
+            .first()
+        )
 
     if request.method == "POST":
 
-        form = UserSkillsForm(request.POST)
+        current_skill_ids = (
+            UserSkill.objects
+            .filter(
+                user=request.user,
+                skill__category=selected_category,
+            )
+            .values_list(
+                "skill_id",
+                flat=True,
+            )
+        )
+
+        form = UserSkillsForm(
+            request.POST,
+            category=selected_category,
+            selected_skills=current_skill_ids,
+        )
 
         if form.is_valid():
 
             selected_skills = form.cleaned_data["skills"]
 
             UserSkill.objects.filter(
-                user=request.user
+                user=request.user,
+                skill__category=selected_category,
             ).delete()
 
             UserSkill.objects.bulk_create(
@@ -65,24 +115,110 @@ def my_skills(request):
                 ]
             )
 
-            return redirect(
+            redirect_url = reverse(
                 "exchange:my_skills"
             )
 
-    else:
+            return redirect(
+                f"{redirect_url}"
+                f"?category={selected_category.id}"
+            )
+
+    elif selected_category:
+
+        current_skill_ids = (
+            UserSkill.objects
+            .filter(
+                user=request.user,
+                skill__category=selected_category,
+            )
+            .values_list(
+                "skill_id",
+                flat=True,
+            )
+        )
 
         form = UserSkillsForm(
+            category=selected_category,
+            selected_skills=current_skill_ids,
             initial={
-                "skills": selected_skills,
-            }
+                "category": selected_category,
+                "skills": current_skill_ids,
+            },
         )
+
+    else:
+        form = UserSkillsForm()
 
     context = {
         "form": form,
+        "categories": categories,
+        "selected_category": selected_category,
     }
 
     return render(
         request,
         "exchange/my_skills.html",
+        context,
+    )
+
+@login_required
+def my_availabilities(request):
+    """
+    Allows a connected user to create
+    and display their upcoming availabilities.
+    """
+
+    if request.method == "POST":
+
+        form = AvailabilityForm(
+            request.POST,
+            user=request.user,
+        )
+
+        if form.is_valid():
+
+            availability = form.save(
+                commit=False
+            )
+
+            availability.user = request.user
+
+            availability.save()
+
+            return redirect(
+                "exchange:my_availabilities"
+            )
+
+    else:
+
+        form = AvailabilityForm(
+            user=request.user
+        )
+
+    availabilities = (
+        Availability.objects
+        .filter(
+            user=request.user,
+            date__gte=timezone.localdate(),
+        )
+        .select_related(
+            "skill",
+            "skill__category",
+        )
+        .order_by(
+            "date",
+            "skill__name",
+        )
+    )
+
+    context = {
+        "form": form,
+        "availabilities": availabilities,
+    }
+
+    return render(
+        request,
+        "exchange/my_availabilities.html",
         context,
     )

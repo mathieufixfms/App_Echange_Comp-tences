@@ -2,65 +2,109 @@
 
 
 {% block title %}
-
-    Connexion - Echange
-
+    Connexion - Coup de main
 {% endblock %}
 
 
 {% block content %}
 
-    <section>
+<div class="row justify-content-center">
 
-        <h2>Connexion</h2>
+    <div class="col-md-8 col-lg-5">
 
-        <p>
-            Connectez-vous pour proposer ou demander de l'aide.
-        </p>
+        <div class="card shadow-sm">
 
+            <div class="card-header bg-primary text-white">
 
-        {% if form.errors %}
-
-            <p>
-                Nom d'utilisateur ou mot de passe incorrect.
-            </p>
-
-        {% endif %}
-
-
-        <form method="post">
-
-            {% csrf_token %}
-
-
-            <div>
-
-                <label for="{{ form.username.id_for_label }}">
-                    Nom d'utilisateur
-                </label>
-
-                {{ form.username }}
+                <h2 class="h4 mb-0">
+                    Connexion
+                </h2>
 
             </div>
 
 
-            <div>
+            <div class="card-body p-4">
 
-                <label for="{{ form.password.id_for_label }}">
-                    Mot de passe
-                </label>
+                <p class="text-muted">
 
-                {{ form.password }}
+                    Connectez-vous pour gérer vos compétences
+                    et vos disponibilités.
+
+                </p>
+
+
+                {% if form.errors %}
+
+                    <div class="alert alert-danger">
+
+                        Nom d'utilisateur ou mot de passe incorrect.
+
+                    </div>
+
+                {% endif %}
+
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+
+                    <div class="mb-3">
+
+                        {{ form.username.label_tag }}
+
+                        <div class="mt-1">
+
+                            {{ form.username }}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        {{ form.password.label_tag }}
+
+                        <div class="mt-1">
+
+                            {{ form.password }}
+
+                        </div>
+
+                    </div>
+
+
+                    {% if next %}
+
+                        <input
+                            type="hidden"
+                            name="next"
+                            value="{{ next }}"
+                        >
+
+                    {% endif %}
+
+
+                    <div class="d-grid">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Se connecter
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
+        </div>
 
-            <button type="submit">
-                Se connecter
-            </button>
+    </div>
 
-        </form>
-
-    </section>
+</div>
 
 {% endblock %}

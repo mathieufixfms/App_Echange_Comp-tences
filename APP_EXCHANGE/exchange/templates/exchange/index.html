@@ -2,89 +2,288 @@
 
 
 {% block title %}
-
     Accueil - Coup de main
-
 {% endblock %}
 
 
 {% block content %}
 
-    <section>
+<!-- Présentation -->
 
-        <h2>Prochains créneaux d'aide</h2>
+<div class="p-5 mb-5 bg-primary text-white rounded-3">
 
-        {% for availability in upcoming_availabilities %}
+    <div class="container-fluid py-3">
 
-            <article>
+        <h1 class="display-5 fw-bold">
+            Échangez vos compétences
+        </h1>
 
-                <h3>
-                    {{ availability.skill.name }}
-                </h3>
-
-                <p>
-                    Catégorie :
-                    {{ availability.skill.category.name }}
-                </p>
-
-                <p>
-                    Date :
-                    {{ availability.date|date:"d/m/Y" }}
-                </p>
-
-            </article>
-
-        {% empty %}
-
-            <p>
-                Aucun créneau disponible pour le moment.
-            </p>
-
-        {% endfor %}
-
-    </section>
+        <p class="fs-5">
+            Proposez votre aide ou trouvez une personne
+            possédant la compétence dont vous avez besoin.
+        </p>
 
 
-    <section>
+        {% if not user.is_authenticated %}
 
-        <h2>Compétences proposées</h2>
+            <a
+                href="{% url 'exchange:login' %}"
+                class="btn btn-light btn-lg"
+            >
+                Se connecter
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- Compétences proposées -->
+
+<section class="mb-5">
+
+    <h2 class="mb-4">
+        Compétences proposées
+    </h2>
+
+    <div class="row">
 
         {% for category in categories %}
 
-            <article>
+            <!-- 2 colonnes à partir des écrans moyens -->
+            <div class="col-12 col-md-6 mb-3">
 
-                <h3>
-                    {{ category.name }}
-                </h3>
+                <div class="accordion">
 
-                <ul>
+                    <div class="accordion-item">
 
-                    {% for skill in category.skills.all %}
+                        <h3
+                            class="accordion-header"
+                            id="heading{{ category.id }}"
+                        >
 
-                        <li>
-                            {{ skill.name }}
-                        </li>
+                            <button
+                                class="accordion-button collapsed bg-primary text-white"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#category{{ category.id }}"
+                                aria-expanded="false"
+                                aria-controls="category{{ category.id }}"
+                            >
 
-                    {% empty %}
+                                {{ category.name }}
 
-                        <li>
-                            Aucune compétence dans cette catégorie.
-                        </li>
+                            </button>
 
-                    {% endfor %}
+                        </h3>
 
-                </ul>
 
-            </article>
+                        <div
+                            id="category{{ category.id }}"
+                            class="accordion-collapse collapse"
+                            aria-labelledby="heading{{ category.id }}"
+                        >
+
+                            <div class="accordion-body">
+
+                                <ul class="list-group list-group-flush">
+
+                                    {% for skill in category.skills.all %}
+
+                                        <li class="list-group-item">
+
+                                            {{ skill.name }}
+
+                                        </li>
+
+                                    {% empty %}
+
+                                        <li
+                                            class="list-group-item text-muted"
+                                        >
+                                            Aucune compétence dans
+                                            cette catégorie.
+                                        </li>
+
+                                    {% endfor %}
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         {% empty %}
 
-            <p>
-                Aucune compétence disponible.
-            </p>
+            <div class="col-12">
+
+                <div class="alert alert-info">
+
+                    Aucune compétence n'est disponible.
+
+                </div>
+
+            </div>
 
         {% endfor %}
 
-    </section>
+    </div>
+
+</section>
+
+
+<!-- Disponibilités publiques -->
+
+<section class="mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2>
+            Prochains créneaux d'aide
+        </h2>
+
+        <span class="badge bg-primary">
+            Disponibilités
+        </span>
+
+    </div>
+
+
+    <div class="row">
+
+ {% for availability in upcoming_availabilities %}
+
+    <div class="col-md-6 col-lg-4 mb-3">
+
+        <div class="card h-100 shadow-sm">
+
+            <div class="card-body">
+
+                <h5 class="card-title text-primary">
+                    {{ availability.skill.name }}
+                </h5>
+
+                <p class="card-text">
+                    <strong>Catégorie :</strong>
+                    {{ availability.skill.category.name }}
+                </p>
+
+                <p class="card-text">
+                    <strong>Date :</strong>
+                    {{ availability.date|date:"d/m/Y" }}
+                </p>
+
+                <span class="badge bg-success mb-3">
+                    Aide proposée
+                </span>
+
+
+                {% if user.is_authenticated %}
+
+                    <hr>
+
+                    <h6 class="fw-bold">
+                        Utilisateur proposant son aide
+                    </h6>
+
+                    <p class="mb-1">
+                        <strong>Prénom :</strong>
+
+                        {% if availability.user.first_name %}
+
+                            {{ availability.user.first_name }}
+
+                        {% else %}
+
+                            Non renseigné
+
+                        {% endif %}
+                    </p>
+
+
+                    <p class="mb-1">
+                        <strong>Nom :</strong>
+
+                        {% if availability.user.last_name %}
+
+                            {{ availability.user.last_name }}
+
+                        {% else %}
+
+                            Non renseigné
+
+                        {% endif %}
+                    </p>
+
+
+                    <p class="mb-0">
+                        <strong>Courriel :</strong>
+
+                        {% if availability.user.email %}
+
+                            <a href="mailto:{{ availability.user.email }}">
+                                {{ availability.user.email }}
+                            </a>
+
+                        {% else %}
+
+                            Non renseigné
+
+                        {% endif %}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="card-footer bg-white text-muted">
+
+                {% if user.is_authenticated %}
+
+                    <small>
+                         Coordonnées affichées
+                    </small>
+
+                {% else %}
+
+                    <small>
+                        Identité de l'utilisateur masquée.
+                    </small>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+{% empty %}
+
+    <div class="col-12">
+
+        <div class="alert alert-info">
+
+            Aucun créneau d'aide n'est disponible
+            pour le moment.
+
+        </div>
+
+    </div>
+
+{% endfor %}
+
+    </div>
+
+</section>
 
 {% endblock %}

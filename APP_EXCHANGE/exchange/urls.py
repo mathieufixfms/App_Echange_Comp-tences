@@ -6,11 +6,13 @@ from . import views
 app_name = "exchange"
 
 urlpatterns = [
-	path("",views.index,name="index"),
+	path("",views.index,name="index",),
 	
 	path("login/",auth_views.LoginView.as_view(template_name="exchange/login.html"),name="login",),
 	
 	path("logout/",auth_views.LogoutView.as_view(),name="logout",),
 	
 	path("my-skills/",views.my_skills,name="my_skills",),
+	
+	path( "my-availabilities",views.my_availabilities,name="my_availabilities",),
 ]
