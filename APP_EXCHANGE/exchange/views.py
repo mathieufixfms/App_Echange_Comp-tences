@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 from .forms import AvailabilityForm, UserSkillsForm, HelpRequestForm
 from .models import Availability, Category, UserSkill, HelpRequest
@@ -339,3 +340,119 @@ def my_help_requests(request):
 		"exchange/my_help_requests.html",
 		context,
 	)
+@login_required
+def other_help_requests(request):
+    """
+    Display help requests from other users when the requested
+    skill is owned by the connected user.
+    """
+
+    today = timezone.localdate()
+
+    # Skills owned by the connected user
+    user_skill_ids = (
+        UserSkill.objects
+        .filter(user=request.user)
+        .values_list(
+            "skill_id",
+            flat=True,
+        )
+    )
+
+    # Help requests matching the connected user's skills
+    help_requests = (
+        HelpRequest.objects
+        .filter(
+            date__gte=today,
+            helper__isnull=True,
+            skill_id__in=user_skill_ids,
+        )
+        .exclude(
+            requester=request.user
+        )
+        .select_related(
+            "requester",
+            "skill",
+            "skill__category",
+        )
+        .order_by(
+            "date",
+            "skill__category__name",
+            "skill__name",
+        )
+    )
+
+    # 3 requests per page
+    paginator = Paginator(
+        help_requests,
+        3,
+    )
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+    }
+
+    return render(
+        request,
+        "exchange/other_help_requests.html",
+        context,
+    )
+
+@login_required
+def accept_help_request(request, pk):
+
+    if request.method != "POST":
+        return redirect("exchange:other_help_requests")
+
+    help_request = get_object_or_404(
+        HelpRequest,
+        pk=pk,
+        helper__isnull=True
+    )
+
+    # Impossible d'accepter sa propre demande
+    if help_request.requester == request.user:
+        messages.error(
+            request,
+            "Vous ne pouvez pas accepter votre propre demande."
+        )
+
+        return redirect(
+            "exchange:other_help_requests"
+        )
+
+    # Vérifier que l'utilisateur possède bien
+    # la compétence demandée
+    has_skill = UserSkill.objects.filter(
+        user=request.user,
+        skill=help_request.skill
+    ).exists()
+
+    if not has_skill:
+        messages.error(
+            request,
+            "Vous ne possédez pas la compétence demandée."
+        )
+
+        return redirect(
+            "exchange:other_help_requests"
+        )
+
+    # Attribution de la demande
+    help_request.helper = request.user
+
+    help_request.save(
+        update_fields=["helper"]
+    )
+
+    messages.success(
+        request,
+        "La demande d'aide vous a été attribuée."
+    )
+
+    return redirect(
+        "exchange:other_help_requests"
+    )

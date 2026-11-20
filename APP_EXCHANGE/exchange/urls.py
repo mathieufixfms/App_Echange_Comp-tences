@@ -17,4 +17,10 @@ urlpatterns = [
 	path( "my-availabilities",views.my_availabilities,name="my_availabilities",),
 	
 	path("my-help-requests/",views.my_help_requests,name="my_help_requests",),
+	
+	path("other-help-requests/",views.other_help_requests,name="other_help_requests",),
+	
+	path("help-request/<int:pk>/accept/",views.accept_help_request,name="accept_help_request",
+	),
+	
 ]

@@ -5,38 +5,38 @@
     <meta charset="UTF-8">
 
     <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
     >
 
     <title>
         {% block title %}
-            Entraide
+        Entraide
         {% endblock %}
     </title>
 
     <!-- Bootstrap CSS -->
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
     >
 </head>
 
 <body class="bg-light">
 
-    <!-- Barre de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<!-- Barre de navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 
-        <div class="container">
+    <div class="container">
 
-            <a
+        <a
                 class="navbar-brand fw-bold"
                 href="{% url 'exchange:index' %}"
-            >
-                Entraide
-            </a>
+        >
+            Entraide
+        </a>
 
-            <button
+        <button
                 class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
@@ -44,51 +44,58 @@
                 aria-controls="mainNavbar"
                 aria-expanded="false"
                 aria-label="Afficher le menu"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
 
-            <div
+        <div
                 class="collapse navbar-collapse"
                 id="mainNavbar"
-            >
+        >
 
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'exchange:index' %}">
-                           Accueil
-                        </a>
-                    </li>
-
-                    {% if user.is_authenticated %}
-
-                        <li class="nav-item">
-                            <a class="nav-link"
-                                href="{% url 'exchange:my_skills' %}">
-                                Mes compétences
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'exchange:my_availabilities' %}">
-                               Mes disponibilités
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                             <a class="nav-link" href="{% url 'exchange:my_help_requests' %}">
-                                Mes demandes d'aide
-                             </a>
-                        </li>
-                    {% endif %}
-                </ul>
-
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'exchange:index' %}">
+                        Accueil
+                    </a>
+                </li>
 
                 {% if user.is_authenticated %}
 
-                    <span class="navbar-text text-white me-3">
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{% url 'exchange:my_skills' %}">
+                        Mes compétences
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'exchange:my_availabilities' %}">
+                        Mes disponibilités
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'exchange:my_help_requests' %}">
+                        Mes demandes d'aide
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'exchange:other_help_requests' %}">
+                        Autres demandes
+                    </a>
+
+                </li>
+                {% endif %}
+            </ul>
+
+
+            {% if user.is_authenticated %}
+
+            <span class="navbar-text text-white me-3">
 
                         Bonjour
 
@@ -105,69 +112,69 @@
                     </span>
 
 
-                    <form
-                        method="post"
-                        action="{% url 'exchange:logout' %}"
-                        class="d-inline"
-                    >
+            <form
+                    method="post"
+                    action="{% url 'exchange:logout' %}"
+                    class="d-inline"
+            >
 
-                        {% csrf_token %}
+                {% csrf_token %}
 
-                        <button
-                            type="submit"
-                            class="btn btn-outline-light"
-                        >
-                            Se déconnecter
-                        </button>
-
-                    </form>
-
-                {% else %}
-
-                    <a
-                        href="{% url 'exchange:login' %}"
+                <button
+                        type="submit"
                         class="btn btn-outline-light"
-                    >
-                        Se connecter
-                    </a>
+                >
+                    Se déconnecter
+                </button>
 
-                {% endif %}
+            </form>
 
-            </div>
+            {% else %}
 
-        </div>
+            <a
+                    href="{% url 'exchange:login' %}"
+                    class="btn btn-outline-light"
+            >
+                Se connecter
+            </a>
 
-    </nav>
-
-
-    <!-- Contenu principal -->
-    <main class="container py-4">
-
-        {% block content %}
-
-        {% endblock %}
-
-    </main>
-
-
-    <!-- Pied de page -->
-    <footer class="border-top bg-white mt-5">
-
-        <div class="container py-4 text-center text-muted">
-
-            <small>
-                Entraide - Echange de compétences
-            </small>
+            {% endif %}
 
         </div>
 
-    </footer>
+    </div>
+
+</nav>
 
 
-    <!-- Bootstrap JavaScript -->
-    <script
+<!-- Contenu principal -->
+<main class="container py-4">
+
+    {% block content %}
+
+    {% endblock %}
+
+</main>
+
+
+<!-- Pied de page -->
+<footer class="border-top bg-white mt-5">
+
+    <div class="container py-4 text-center text-muted">
+
+        <small>
+            Entraide - Echange de compétences
+        </small>
+
+    </div>
+
+</footer>
+
+
+<!-- Bootstrap JavaScript -->
+<script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
+</script>
 
 </body>
 

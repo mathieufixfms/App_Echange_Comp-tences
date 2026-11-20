@@ -1,0 +1,418 @@
+{% extends "exchange/base.html" %}
+
+{% block title %}
+Autres demandes d'aide - Coup de main
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- TITRE -->
+
+    <div class="mb-4">
+        <h2>Autres demandes d'aide</h2>
+
+        <p class="text-muted">
+            Demandes d'aide correspondant à vos compétences.
+        </p>
+    </div>
+
+
+    <!-- MESSAGES DJANGO -->
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div
+                class="alert
+                {% if message.tags == 'error' %}
+                    alert-danger
+                {% else %}
+                    alert-{{ message.tags }}
+                {% endif %}
+                alert-dismissible fade show"
+                role="alert"
+            >
+
+                {{ message }}
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Fermer"
+                ></button>
+
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    <!-- LISTE DES DEMANDES -->
+
+    {% if page_obj.object_list %}
+
+        <div class="row">
+
+            {% for help_request in page_obj %}
+
+                <!--
+                    col-md-4 permet d'afficher trois cartes
+                    par ligne sur les écrans moyens et grands.
+                -->
+
+                <div class="col-12 col-md-4 mb-4">
+
+                    <div class="card shadow-sm h-100">
+
+                        <!-- EN-TÊTE DE LA CARTE -->
+
+                        <div class="card-header bg-primary text-white">
+
+                            <strong>
+                                {{ help_request.skill.name }}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- CONTENU DE LA CARTE -->
+
+                        <div class="card-body d-flex flex-column">
+
+                            <!-- CATÉGORIE -->
+
+                            <p>
+                                <strong>Catégorie :</strong><br>
+
+                                {{ help_request.skill.category.name }}
+                            </p>
+
+
+                            <!-- COMPÉTENCE -->
+
+                            <p>
+                                <strong>Compétence recherchée :</strong><br>
+
+                                {{ help_request.skill.name }}
+                            </p>
+
+
+                            <!-- ACTIVITÉ -->
+
+                            {% if help_request.activity %}
+
+                                <p>
+                                    <strong>Activité :</strong><br>
+
+                                    {{ help_request.activity }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- DATE -->
+
+                            <p>
+                                <strong>Date :</strong><br>
+
+                                {{ help_request.date|date:"d/m/Y" }}
+                            </p>
+
+
+                            <!-- DISPONIBILITÉ -->
+
+                            {% if help_request.availability %}
+
+                                <p>
+                                    <strong>Disponibilité :</strong><br>
+
+                                    {{ help_request.availability }}
+                                </p>
+
+                            {% endif %}
+
+
+                            <hr>
+
+
+                            <!-- INFORMATIONS SUR LE DEMANDEUR -->
+
+                            <p class="mb-2">
+                                <strong>Utilisateur recherchant de l'aide</strong>
+                            </p>
+
+
+                            <p class="mb-1">
+
+                                <strong>Prénom :</strong>
+
+                                {% if help_request.requester.first_name %}
+
+                                    {{ help_request.requester.first_name }}
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+
+                            <p class="mb-1">
+
+                                <strong>Nom :</strong>
+
+                                {% if help_request.requester.last_name %}
+
+                                    {{ help_request.requester.last_name }}
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+
+                            <p class="mb-3">
+
+                                <strong>Courriel :</strong>
+
+                                {% if help_request.requester.email %}
+
+                                    {{ help_request.requester.email }}
+
+                                {% else %}
+
+                                    Non renseigné
+
+                                {% endif %}
+
+                            </p>
+
+
+                            <!-- BOUTON ACCEPTER -->
+
+                            <div class="mt-auto pt-3">
+
+                                <form
+                                    method="post"
+                                    action="{% url 'exchange:accept_help_request' help_request.pk %}"
+                                >
+
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-success w-100"
+                                        onclick="return confirm(
+                                            'Voulez-vous vraiment accepter cette demande d’aide ?'
+                                        );"
+                                    >
+                                        Accepter la demande
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if page_obj.paginator.num_pages > 1 %}
+
+            <nav
+                class="mt-3"
+                aria-label="Pagination des demandes d'aide"
+            >
+
+                <ul class="pagination justify-content-center">
+
+
+                    <!-- PREMIÈRE PAGE -->
+
+                    {% if page_obj.has_previous %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page=1"
+                                aria-label="Première page"
+                            >
+                                &laquo;
+                            </a>
+
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- PAGE PRÉCÉDENTE -->
+
+                    {% if page_obj.has_previous %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ page_obj.previous_page_number }}"
+                            >
+                                Précédent
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+                                Précédent
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- NUMÉROS DES PAGES -->
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                        {% if page_obj.number == num %}
+
+                            <li
+                                class="page-item active"
+                                aria-current="page"
+                            >
+
+                                <span class="page-link">
+                                    {{ num }}
+                                </span>
+
+                            </li>
+
+                        {% else %}
+
+                            <li class="page-item">
+
+                                <a
+                                    class="page-link"
+                                    href="?page={{ num }}"
+                                >
+                                    {{ num }}
+                                </a>
+
+                            </li>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    <!-- PAGE SUIVANTE -->
+
+                    {% if page_obj.has_next %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ page_obj.next_page_number }}"
+                            >
+                                Suivant
+                            </a>
+
+                        </li>
+
+                    {% else %}
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link">
+                                Suivant
+                            </span>
+
+                        </li>
+
+                    {% endif %}
+
+
+                    <!-- DERNIÈRE PAGE -->
+
+                    {% if page_obj.has_next %}
+
+                        <li class="page-item">
+
+                            <a
+                                class="page-link"
+                                href="?page={{ page_obj.paginator.num_pages }}"
+                                aria-label="Dernière page"
+                            >
+                                &raquo;
+                            </a>
+
+                        </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </nav>
+
+
+            <!-- INDICATION DE LA PAGE ACTUELLE -->
+
+            <p class="text-center text-muted">
+
+                Page {{ page_obj.number }}
+                sur {{ page_obj.paginator.num_pages }}
+
+            </p>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <!-- AUCUNE DEMANDE -->
+
+        <div
+            class="alert alert-info"
+            role="alert"
+        >
+
+            <h5 class="alert-heading">
+                Aucune demande d'aide disponible
+            </h5>
+
+            <p class="mb-0">
+                Il n'y a actuellement aucune demande d'aide
+                correspondant à vos compétences.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
